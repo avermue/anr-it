@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INRAE Transfert · ANR Projects</title>
+<script>
+  try {
+    var raw = localStorage.getItem('anr-it.scope');
+    var scope = raw ? JSON.parse(raw) : ['INRAE'];
+    if (!Array.isArray(scope)) scope = ['INRAE'];
+    var hasIT = scope.indexOf('IT') >= 0;
+    var hasINRAE = scope.indexOf('INRAE') >= 0;
+    var mode = hasIT && hasINRAE ? 'BOTH' : hasIT ? 'IT' : hasINRAE ? 'INRAE' : 'ALL';
+    document.documentElement.classList.add('mode-' + mode);
+  } catch (e) {
+    document.documentElement.classList.add('mode-INRAE');
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Fira+Code:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-logo">INRAE Transfert <em>· ANR Projects</em></div>
+    <div class="hdr-search">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search" placeholder="Search projects, partners, units..." autocomplete="off">
+    </div>
+    <div class="hdr-kpis" id="hdr-kpis"></div>
+  </div>
+  <nav class="tab-bar">
+    <button class="tab-btn on" data-tab="projects">Projects</button>
+    <button class="tab-btn" data-tab="partners">Partners</button>
+    <button class="tab-btn" data-tab="units">Units</button>
+    <button class="tab-btn tab-btn-discrete" data-tab="about">about</button>
+    <span class="update-date" id="update-date"></span>
+  </nav>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="fb" id="sort-block">
+      <span class="ft">Sort</span>
+      <select class="fsel" id="sort">
+        <option value="startDate-desc">Start date down</option>
+        <option value="startDate-asc">Start date up</option>
+        <option value="budget-desc">ANR aid down</option>
+        <option value="budget-asc">ANR aid up</option>
+        <option value="acronym-asc">Acronym A-Z</option>
+        <option value="partners-desc">Partners down</option>
+      </select>
+    </div>
+    <button class="btn-reset" id="btn-reset">Reset filters</button>
+    <hr class="fr">
+    <div class="fb">
+      <span class="ft">Scope</span>
+      <div class="cl" id="f-scope"></div>
+    </div>
+    <hr class="fr">
+    <div class="fb">
+      <span class="ft">Programme</span>
+      <div class="cl" id="f-programme"></div>
+    </div>
+    <hr class="fr">
+    <div class="fb">
+      <span class="ft">Type of action</span>
+      <div class="cl" id="f-scheme-group"></div>
+    </div>
+    <hr class="fr">
+    <div id="role-section"></div>
+  </aside>
+
+  <main class="main">
+    <div class="tab-panel on" id="tab-projects">
+      <div class="rbar">
+        <div>
+          <div class="rcount" id="rcount"></div>
+          <div id="active-filters" class="active-filters"></div>
+        </div>
+        <div class="vbtns">
+          <button class="vbtn on" id="v-list" onclick="setView('list')">List</button>
+          <button class="vbtn" id="v-grid" onclick="setView('grid')">Grid</button>
+        </div>
+      </div>
+      <div id="grid"><div class="empty"><span class="big">○</span>Loading...</div></div>
+    </div>
+
+    <div class="tab-panel" id="tab-partners">
+      <div class="chart-box">
+        <div class="view-head">
+          <div>
+            <div class="chart-title">Partner Organisations</div>
+            <div class="view-sub" id="partners-subtitle"></div>
+          </div>
+          <select id="partner-type" class="fsel compact">
+            <option value="">All types</option>
+          </select>
+        </div>
+        <div class="filter-indicator" id="partner-filter-active">
+          <span id="partner-filter-label"></span>
+          <button onclick="clearPartnerFilter()">Clear</button>
+        </div>
+        <div class="table-wrap">
+          <table class="ptable">
+            <thead><tr>
+              <th>Organisation</th>
+              <th>Country</th>
+              <th>Type</th>
+              <th>SIREN</th>
+              <th>Projects</th>
+              <th>ANR aid</th>
+            </tr></thead>
+            <tbody id="partner-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pager" id="partner-pager"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-units">
+      <div class="chart-box">
+        <div class="view-head">
+          <div>
+            <div class="chart-title">INRAE Units</div>
+            <div class="view-sub" id="units-subtitle"></div>
+          </div>
+          <select id="unit-sort" class="fsel compact">
+            <option value="projects-desc">Projects down</option>
+            <option value="budget-desc">ANR aid down</option>
+            <option value="rnsr-asc">RNSR A-Z</option>
+            <option value="city-asc">City A-Z</option>
+          </select>
+        </div>
+        <div class="filter-indicator" id="unit-filter-active">
+          <span id="unit-filter-label"></span>
+          <button onclick="clearUnitFilter()">Clear</button>
+        </div>
+        <div class="table-wrap">
+          <table class="ptable">
+            <thead><tr>
+              <th>RNSR</th>
+              <th>City</th>
+              <th>Lead contacts</th>
+              <th>Projects</th>
+              <th>Years</th>
+              <th>ANR aid</th>
+            </tr></thead>
+            <tbody id="unit-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pager" id="unit-pager"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-about">
+      <div class="about-page">
+        <div class="about-hdr">
+          <div>
+            <div class="about-hdr-title">About this observatory</div>
+            <div class="about-hdr-sub">ANR open data · INRAE / INRA / IRSTEA / CEMAGREF / INRAE Transfert</div>
+          </div>
+        </div>
+        <div class="about-body" id="about-body"></div>
+        <div class="about-footer">
+          Built by Anthony Vermue
+          <span>·</span>
+          <a href="https://github.com/avermue/anr-it" target="_blank">github.com/avermue/anr-it</a>
+          <span id="about-version"></span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="mhd">
+      <div class="macro" id="m-acro"></div>
+      <div class="mtw">
+        <div class="mtitle" id="m-title"></div>
+        <div class="mtags" id="m-tags"></div>
+      </div>
+      <button class="mclose" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="msec">
+        <div class="msec-title">General information</div>
+        <dl class="kv" id="m-info"></dl>
+      </div>
+      <div class="msec">
+        <div class="msec-title" id="m-participation-title">Participation</div>
+        <dl class="kv" id="m-participation"></dl>
+      </div>
+      <div class="msec full">
+        <div class="msec-title">Summary</div>
+        <div id="m-obj" class="objective-text"></div>
+      </div>
+      <div class="msec full">
+        <div class="msec-title" id="m-pt-title">Partners</div>
+        <div class="table-wrap modal-table">
+          <table class="mptable">
+            <thead><tr>
+              <th>Organisation</th>
+              <th>Country</th>
+              <th>Role</th>
+              <th>Type</th>
+              <th>ANR aid</th>
+              <th>RNSR</th>
+              <th>Lead</th>
+            </tr></thead>
+            <tbody id="m-partners"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot"><a id="m-link" href="#" target="_blank" class="btn-primary">View ANR page</a></div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/partners.js"></script>
+<script src="js/units.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/about.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
