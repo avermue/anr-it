@@ -24,10 +24,11 @@ csv.field_size_limit(10**9)
 BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_DIR = BASE_DIR / "data" / "raw"
 OUTPUT = BASE_DIR / "data" / "inrae_anr_projects.json"
+SOURCE_METADATA = RAW_DIR / "source_metadata.json"
 
 ENCODING = "utf-8-sig"
 SEP = ";"
-ANR_DATA_DATE = "2026-05-02"
+DEFAULT_ANR_DATA_DATE = "2026-05-02"
 
 INRAE_SIREN = "180070039"
 IT_SIREN = "433960762"
@@ -108,6 +109,24 @@ def read_rows(filename):
     path = RAW_DIR / filename
     with path.open("r", encoding=ENCODING, newline="") as handle:
         yield from csv.DictReader(handle, delimiter=SEP)
+
+
+def load_anr_data_date():
+    if not SOURCE_METADATA.exists():
+        return DEFAULT_ANR_DATA_DATE
+
+    try:
+        with SOURCE_METADATA.open("r", encoding="utf-8") as handle:
+            metadata = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return DEFAULT_ANR_DATA_DATE
+
+    dates = []
+    for dataset_key in ("dgds", "dgpie"):
+        value = (metadata.get("datasets") or {}).get(dataset_key, {}).get("last_update")
+        if isinstance(value, str) and len(value) >= 10:
+            dates.append(value[:10])
+    return max(dates) if dates else DEFAULT_ANR_DATA_DATE
 
 
 COUNTRY_CODES = {
@@ -757,10 +776,11 @@ def main():
 
     log("Assembling retained projects...")
     projects, skeleton_projects = assemble_projects(projects_base, partners_by_project)
+    anr_data_date = load_anr_data_date()
 
     output = {
         "generatedAt": date.today().isoformat(),
-        "anrDataDate": ANR_DATA_DATE,
+        "anrDataDate": anr_data_date,
         "projects": projects,
     }
 

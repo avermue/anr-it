@@ -1,0 +1,114 @@
+name: Update ANR data
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every Tuesday at 08:00 Europe/Paris. A job gate below keeps one run out
+    # of two, anchored on Tuesday 2026-05-19.
+    - cron: "0 8 * * 2"
+      timezone: "Europe/Paris"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-anr-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check biweekly cadence
+        id: cadence
+        shell: python
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          from datetime import date, datetime
+          import os
+
+          anchor = date(2026, 5, 19)
+          if os.environ["EVENT_NAME"] == "workflow_dispatch":
+              should_run = True
+              reason = "manual run"
+          else:
+              today = datetime.now().date()
+              delta_days = (today - anchor).days
+              should_run = delta_days >= 0 and delta_days % 14 == 0
+              reason = f"{delta_days} days since {anchor.isoformat()}"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"run={'true' if should_run else 'false'}\n")
+              output.write(f"reason={reason}\n")
+
+          print(f"Run data update: {should_run} ({reason})")
+
+      - name: Checkout repository
+        if: steps.cadence.outputs.run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        if: steps.cadence.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Keep current dataset snapshot
+        if: steps.cadence.outputs.run == 'true'
+        run: cp data/inrae_anr_projects.json "$RUNNER_TEMP/inrae_anr_projects.before.json"
+
+      - name: Download latest ANR sources
+        if: steps.cadence.outputs.run == 'true'
+        run: python scripts/download_anr_sources.py --force
+
+      - name: Rebuild static JSON
+        if: steps.cadence.outputs.run == 'true'
+        run: python scripts/build_data.py
+
+      - name: Validate JSON
+        if: steps.cadence.outputs.run == 'true'
+        run: python -m json.tool data/inrae_anr_projects.json > /dev/null
+
+      - name: Ignore timestamp-only rebuilds
+        if: steps.cadence.outputs.run == 'true'
+        shell: python
+        run: |
+          import json
+          import os
+          import shutil
+
+          before_path = os.path.join(os.environ["RUNNER_TEMP"], "inrae_anr_projects.before.json")
+          current_path = "data/inrae_anr_projects.json"
+
+          with open(before_path, "r", encoding="utf-8") as handle:
+              before = json.load(handle)
+          with open(current_path, "r", encoding="utf-8") as handle:
+              current = json.load(handle)
+
+          before_cmp = dict(before)
+          current_cmp = dict(current)
+          before_cmp.pop("generatedAt", None)
+          current_cmp.pop("generatedAt", None)
+
+          if before_cmp == current_cmp:
+              shutil.copyfile(before_path, current_path)
+              print("No ANR data change beyond generatedAt; keeping the committed JSON.")
+          else:
+              print("ANR data changed; keeping the rebuilt JSON.")
+
+      - name: Commit and push updated data
+        if: steps.cadence.outputs.run == 'true'
+        run: |
+          if git diff --quiet -- data/inrae_anr_projects.json; then
+            echo "No ANR data changes to commit."
+            exit 0
+          fi
+
+          git diff --stat -- data/inrae_anr_projects.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/inrae_anr_projects.json
+          git commit -m "Update ANR data"
+          git push
