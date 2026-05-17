@@ -30,9 +30,7 @@ function renderCards() {
         <span class="card-meta">${fmtD(project.startDate)} · ${project.edition || '-'} · ${project.partnerCount || 0} partners</span>
         ${budgetChips(project)}
         <span class="card-flags" title="${esc((project.partnerCountries || []).join(', '))}">${flags}</span>
-        <a class="card-link" href="${esc(project.anrUrl)}" target="_blank" onclick="event.stopPropagation()">ANR</a>
       </div>
     </div>`;
   }).join('');
 }
-

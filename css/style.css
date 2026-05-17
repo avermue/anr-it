@@ -126,8 +126,6 @@ button { cursor: pointer; }
 .card-foot { padding: 6px 12px; border-top: 1px solid var(--rule); background: var(--paper); display: flex; align-items: center; justify-content: space-between; gap: 7px; flex-wrap: wrap; }
 .card-meta, .card-budget, .card-flags { font-family: 'Fira Code', monospace; font-size: .62rem; color: var(--ink-light); }
 .card-budget { color: var(--it); font-weight: 500; }
-.card-link { font-family: 'Fira Code', monospace; font-size: .59rem; color: var(--it-mid); border: 1px solid var(--rule); padding: 2px 6px; border-radius: 3px; }
-.card-link:hover { background: var(--it-pale); }
 .card-budgets { display: flex; gap: 8px; font-family: 'Fira Code', monospace; font-size: .65rem; font-weight: 500; flex-wrap: wrap; }
 .cb-total { color: var(--ink-light); }
 .cb-it { color: #1a4f8a; }
@@ -180,9 +178,6 @@ dl.kv dd { color: var(--ink); }
 .modal-table { max-height: 320px; overflow-y: auto; }
 .mptable tr.is-it td { background: #e8f0fb; color: #1a4f8a; font-weight: 700; }
 .mptable tr.is-inrae td { background: #e0f2f1; color: #006f6a; font-weight: 600; }
-.mfoot { padding: 10px 18px; border-top: 1px solid var(--rule); display: flex; justify-content: flex-end; }
-.btn-primary { display: inline-block; padding: 7px 15px; background: var(--it); color: #fff; border-radius: var(--r); font-size: .8rem; font-weight: 700; transition: background .15s; }
-.btn-primary:hover { background: var(--it-mid); }
 
 .about-page { background: var(--white); border: 1px solid var(--rule); border-radius: 8px; width: 100%; margin: 8px 0 32px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
 .about-hdr { padding: 18px 24px 14px; border-bottom: 2px solid var(--it); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -207,4 +202,3 @@ dl.kv dd { color: var(--ink); }
   #grid.cols2, .mbody, .about-body { grid-template-columns: 1fr; }
   .msec.full { grid-column: span 1; }
 }
-

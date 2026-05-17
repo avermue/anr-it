@@ -5,7 +5,6 @@ function openModal(id) {
   document.getElementById('m-acro').textContent = project.acronym || '-';
   document.getElementById('m-title').textContent = project.title || project.id;
   document.getElementById('m-obj').textContent = project.objective || 'No summary available.';
-  document.getElementById('m-link').href = project.anrUrl || '#';
 
   const unitCount = projectUnitCodes(project).length;
   document.getElementById('m-tags').innerHTML = `
@@ -74,4 +73,3 @@ function overlayClick(event) {
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && document.getElementById('overlay').classList.contains('open')) closeModal();
 });
-
