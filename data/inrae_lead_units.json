@@ -1,0 +1,202 @@
+{
+  "generatedAt": "2026-05-18",
+  "source": "https://annuaire.inrae.fr/personnes",
+  "unresolvedRnsr": [
+    "195517880K",
+    "198817831N",
+    "199918633M",
+    "200418618Z",
+    "200522579A"
+  ],
+  "matches": [
+    {
+      "rnsr": "194917817T",
+      "leadFirstName": "Dominique",
+      "leadName": "DESBOIS",
+      "personName": "Desbois Dominique",
+      "personUrl": "https://annuaire.inrae.fr/personne/w_m-N998Bf057Z5vtsNgwPLcZczh3M2C0h4XDW-sMK4",
+      "projects": [
+        "ANR-16-NME1-0008"
+      ],
+      "fallbackLabel": "Paris-Saclay Applied Economics",
+      "structureId": "0210",
+      "structureRnsr": "202224181T",
+      "unitName": "Paris-Saclay Applied Economics",
+      "unitLabel": "UMR 0210 PSAE | Paris-Saclay Applied Economics",
+      "unitType": "UMR",
+      "unitCode": "0210",
+      "unitAcronym": "PSAE",
+      "unitCentre": "Centre de recherche Ile-de-France-Versailles-Saclay",
+      "unitDepartment": "Economie et sciences sociales pour l'agriculture, l'alimentation, l'environnement",
+      "unitDepartmentCode": "50",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/0210"
+    },
+    {
+      "rnsr": "199718621H",
+      "leadFirstName": "Caroline",
+      "leadName": "LE BOUTEILLER",
+      "personName": "LE BOUTEILLER CAROLINE",
+      "personUrl": "",
+      "projects": [
+        "ANR-22-CE01-0008"
+      ],
+      "fallbackLabel": "Institut des géosciences de l'environnement",
+      "structureId": "1509",
+      "structureRnsr": "201722374A",
+      "unitName": "Institut des géosciences de l'environnement",
+      "unitLabel": "UMR 1509 IGE | Institut des géosciences de l'environnement",
+      "unitType": "UMR",
+      "unitCode": "1509",
+      "unitAcronym": "IGE",
+      "unitCentre": "Centre de recherche Lyon-Grenoble-Auvergne-Rhône-Alpes",
+      "unitDepartment": "Sciences des écosystèmes aquatiques, des ressources en eau et des risques associés",
+      "unitDepartmentCode": "82",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1509"
+    },
+    {
+      "rnsr": "200022724E",
+      "leadFirstName": "Antonio",
+      "leadName": "BISPO",
+      "personName": "Bispo Antonio",
+      "personUrl": "",
+      "projects": [
+        "ANR-19-DATA-0005"
+      ],
+      "fallbackLabel": "UR 1508 Info&Sols",
+      "structureId": "1508",
+      "structureRnsr": "202324348V",
+      "unitName": "UR 1508 Info&Sols",
+      "unitLabel": "UR 1508 Info&Sols",
+      "unitType": "UR",
+      "unitCode": "1508",
+      "unitAcronym": "Info&Sols",
+      "unitCentre": "Centre de recherche Val de Loire",
+      "unitDepartment": "Agronomie et sciences de l'environnement pour les agroécosystèmes",
+      "unitDepartmentCode": "15",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1508"
+    },
+    {
+      "rnsr": "200319712T",
+      "leadFirstName": "Frédérique",
+      "leadName": "ANGEVIN",
+      "personName": "Angevin Fréderique",
+      "personUrl": "https://annuaire.inrae.fr/personne/wZ2tNDY4IJIkW4s7xSqusVxuCgjGdRrN-FlVgONSBjM",
+      "projects": [
+        "ANR-11-AGRO-0003"
+      ],
+      "fallbackLabel": "INSTITUT NATIONAL DE LA RECHERCHE AGRONOMIQUE - CENTRE DE RECHERCHE DE VERSAILLES GRIGNON",
+      "structureId": "1508",
+      "structureRnsr": "202324348V",
+      "unitName": "UR 1508 Info&Sols",
+      "unitLabel": "UR 1508 Info&Sols",
+      "unitType": "UR",
+      "unitCode": "1508",
+      "unitAcronym": "Info&Sols",
+      "unitCentre": "Centre de recherche Val de Loire",
+      "unitDepartment": "Agronomie et sciences de l'environnement pour les agroécosystèmes",
+      "unitDepartmentCode": "15",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1508"
+    },
+    {
+      "rnsr": "200518617U",
+      "leadFirstName": "Nicolas",
+      "leadName": "MAZZELLA",
+      "personName": "MAZZELLA DI BOSCO NICOLAS",
+      "personUrl": "",
+      "projects": [
+        "ANR-11-CESA-0022"
+      ],
+      "fallbackLabel": "Ecosystèmes aquatiques et changements globaux",
+      "structureId": "1454",
+      "structureRnsr": "201421785Y",
+      "unitName": "Ecosystèmes aquatiques et changements globaux",
+      "unitLabel": "UR 1454 EABX | Ecosystèmes aquatiques et changements globaux",
+      "unitType": "UR",
+      "unitCode": "1454",
+      "unitAcronym": "EABX",
+      "unitCentre": "Centre de recherche Nouvelle-Aquitaine-Bordeaux",
+      "unitDepartment": "Sciences des écosystèmes aquatiques, des ressources en eau et des risques associés",
+      "unitDepartmentCode": "82",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1454"
+    },
+    {
+      "rnsr": "200817994D",
+      "leadFirstName": "Séverine",
+      "leadName": "GOJARD",
+      "personName": "Gojard Severine",
+      "personUrl": "",
+      "projects": [
+        "ANR-12-DSSA-0001"
+      ],
+      "fallbackLabel": "Santé et Agroécologie du Vignoble",
+      "structureId": "1429",
+      "structureRnsr": "200012756V",
+      "unitName": "Centre Maurice Halbwachs",
+      "unitLabel": "UMR 1429 CMH | Centre Maurice Halbwachs",
+      "unitType": "UMR",
+      "unitCode": "1429",
+      "unitAcronym": "CMH",
+      "unitCentre": "Centre de recherche Ile-de-France-Versailles-Saclay",
+      "unitDepartment": "Economie et sciences sociales pour l'agriculture, l'alimentation, l'environnement",
+      "unitDepartmentCode": "50",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1429"
+    },
+    {
+      "rnsr": "200918624J",
+      "leadFirstName": "Thibault",
+      "leadName": "DATRY",
+      "personName": "DATRY THIBAULT",
+      "personUrl": "",
+      "projects": [
+        "ANR-17-MRS5-0018"
+      ],
+      "fallbackLabel": "Fonctionnement des hydrosystèmes",
+      "structureId": "1469",
+      "structureRnsr": "201822687L",
+      "unitName": "Fonctionnement des hydrosystèmes",
+      "unitLabel": "UR 1469 RiverLy | Fonctionnement des hydrosystèmes",
+      "unitType": "UR",
+      "unitCode": "1469",
+      "unitAcronym": "RiverLy",
+      "unitCentre": "Centre de recherche Lyon-Grenoble-Auvergne-Rhône-Alpes",
+      "unitDepartment": "Sciences des écosystèmes aquatiques, des ressources en eau et des risques associés",
+      "unitDepartmentCode": "82",
+      "unitDepartmentCopilots": [],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1469"
+    },
+    {
+      "rnsr": "201019359D",
+      "leadFirstName": "Martine",
+      "leadName": "MORZEL",
+      "personName": "Morzel Martine",
+      "personUrl": "",
+      "projects": [
+        "ANR-16-HDHL-0005"
+      ],
+      "fallbackLabel": "Science et Technologie du Lait et de l'Oeuf",
+      "structureId": "1253",
+      "structureRnsr": "199117840K",
+      "unitName": "Science et Technologie du Lait et de l'Oeuf",
+      "unitLabel": "UMR 1253 STLO | Science et Technologie du Lait et de l'Oeuf",
+      "unitType": "UMR",
+      "unitCode": "1253",
+      "unitAcronym": "STLO",
+      "unitCentre": "Centre de recherche Bretagne-Normandie",
+      "unitDepartment": "Sciences pour l'ingénierie des aliments, des produits biosourcés et des résidus de l'activité humaine",
+      "unitDepartmentCode": "52",
+      "unitDepartmentCopilots": [
+        {
+          "code": "19",
+          "name": "Microbiologie et chaîne alimentaire"
+        }
+      ],
+      "unitUrl": "https://annuaire.inrae.fr/structure/1253"
+    }
+  ]
+}

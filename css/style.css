@@ -146,6 +146,8 @@ button { cursor: pointer; }
 .ptable tr.is-clickable { cursor: pointer; }
 .ptable tr.is-active td { background: var(--it-pale); outline: 1px solid rgba(37,99,171,.28); }
 .name-main { font-weight: 700; color: var(--ink); }
+.name-main a { color: inherit; text-decoration: none; }
+.name-main a:hover { color: var(--it); text-decoration: underline; }
 .name-sub { font-family: 'Fira Code', monospace; font-size: .62rem; color: var(--ink-xlight); margin-top: 2px; }
 .mono { font-family: 'Fira Code', monospace; font-size: .68rem; }
 .pager { display: flex; gap: 3px; margin-top: 8px; align-items: center; font-size: .74rem; flex-wrap: wrap; }

@@ -119,7 +119,7 @@ function apply() {
   FILTERED = VISIBLE_PROJECTS.filter(project => {
     if (query) {
       const partnerText = (project.partners || []).map(partner =>
-        `${partner.name || ''} ${partner.city || ''} ${partner.rnsr || ''} ${partner.leadName || ''} ${partner.leadFirstName || ''}`
+        `${partner.name || ''} ${partner.unitName || ''} ${partner.unitAcronym || ''} ${partner.unitDepartment || ''} ${partner.city || ''} ${partner.rnsr || ''} ${partner.leadName || ''} ${partner.leadFirstName || ''}`
       ).join(' ');
       const searchable = `${project.id} ${project.acronym} ${project.title} ${project.objective} ${project.fundingScheme} ${project.schemeGroup} ${partnerText}`.toLowerCase();
       if (!searchable.includes(query)) return false;

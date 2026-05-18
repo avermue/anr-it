@@ -25,6 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_DIR = BASE_DIR / "data" / "raw"
 OUTPUT = BASE_DIR / "data" / "inrae_anr_projects.json"
 SOURCE_METADATA = RAW_DIR / "source_metadata.json"
+INRAE_STRUCTURES = BASE_DIR / "data" / "inrae_structures.json"
+INRAE_LEAD_UNITS = BASE_DIR / "data" / "inrae_lead_units.json"
 
 ENCODING = "utf-8-sig"
 SEP = ";"
@@ -460,6 +462,247 @@ def load_siren_entries():
     }
 
 
+UNIT_HINTS = {
+    "AGRONOMIE",
+    "ALIMENT",
+    "ALIMENTAIRE",
+    "BIOCHIMIE",
+    "BIOLOGIE",
+    "BIOTECHNOLOGIE",
+    "ECOLOGIE",
+    "ECOPHYSIOLOGIE",
+    "GENETIQUE",
+    "INFORMATIQUE",
+    "LABORATOIRE",
+    "MATHEMATIQUES",
+    "MICROBIOLOGIE",
+    "NUTRITION",
+    "PATHOLOGIE",
+    "PHYSIOLOGIE",
+    "PLANTES",
+    "SCIENCE",
+    "SCIENCES",
+    "UNITE",
+    "UMR",
+}
+
+GENERIC_INRAE_LABELS = {
+    "INRAE",
+    "INRA",
+    "IRSTEA",
+    "CEMAGREF",
+    "INSTITUT NATIONAL DE LA RECHERCHE AGRONOMIQUE",
+    "INSTITUT NATIONAL DE RECHERCHE POUR L AGRICULTURE L ALIMENTATION ET L ENVIRONNEMENT",
+}
+
+
+ORG_PREFIX_PATTERNS = [
+    (re.compile(r"^INSTITUT NATIONAL DE LA RECHERCHE AGRONOMIQUE\s*[-,/]?\s*", re.I), "INRA"),
+    (re.compile(r"^INRA\s*[-,/]?\s*", re.I), "INRA"),
+    (
+        re.compile(
+            r"^INSTITUT NATIONAL DE RECHERCHE POUR L[' ]AGRICULTURE[,]?\s*L[' ]ALIMENTATION ET L[' ]ENVIRONNEMENT\s*[-,/]?\s*",
+            re.I,
+        ),
+        "INRAE",
+    ),
+    (re.compile(r"^INRAE\s*[-,/]?\s*", re.I), "INRAE"),
+    (
+        re.compile(
+            r"^INSTITUT DE RECHERCHE EN SCIENCES ET TECHNOLOGIES POUR L ENVIRONNEMENT ET L AGRICULTURE\s*[-,/]?\s*",
+            re.I,
+        ),
+        "IRSTEA",
+    ),
+    (re.compile(r"^IRSTEA\s*[-,/]?\s*", re.I), "IRSTEA"),
+    (re.compile(r"^IR?STEA\s+", re.I), "IRSTEA"),
+    (re.compile(r"^CEMAGREF\s*[-,/]?\s*", re.I), "CEMAGREF"),
+]
+
+
+ORG_SUFFIX_PATTERNS = [
+    (re.compile(r"\s*[-,/]?\s*INRAE\s*$", re.I), "INRAE"),
+    (re.compile(r"\s*[-,/]?\s*INRA\s*$", re.I), "INRA"),
+    (re.compile(r"\s*[-,/]?\s*IRSTEA\s*$", re.I), "IRSTEA"),
+    (re.compile(r"\s*[-,/]?\s*CEMAGREF\s*$", re.I), "CEMAGREF"),
+]
+
+
+def fallback_org_and_label(label, entity):
+    clean = re.sub(r"\s+", " ", ss(label)).strip(" -")
+    org = ""
+
+    for pattern, candidate in ORG_PREFIX_PATTERNS:
+        next_clean = pattern.sub("", clean).strip(" -")
+        if next_clean != clean:
+            clean = next_clean
+            org = candidate
+            break
+
+    for pattern, candidate in ORG_SUFFIX_PATTERNS:
+        next_clean = pattern.sub("", clean).strip(" -")
+        if next_clean != clean:
+            clean = next_clean
+            org = org or candidate
+            break
+
+    return org or ss(entity) or "INRAE", clean or ss(label)
+
+
+def sentence_case_piece(label):
+    text = ss(label)
+    if not text or any(ch.islower() for ch in text):
+        return text
+
+    stopwords = {"de", "du", "des", "d", "l", "la", "le", "les", "et", "en", "pour", "sur", "au", "aux", "recherche"}
+    words = []
+    for index, word in enumerate(text.lower().split(" ")):
+        parts = []
+        for hyphen_part in word.split("-"):
+            apostrophe_parts = hyphen_part.split("'")
+            formatted = []
+            for apostrophe_index, part in enumerate(apostrophe_parts):
+                if not part:
+                    formatted.append(part)
+                elif part in stopwords and (index > 0 or apostrophe_index == 0):
+                    formatted.append(part)
+                else:
+                    formatted.append(part[0].upper() + part[1:])
+            parts.append("'".join(formatted))
+        words.append("-".join(parts))
+    return " ".join(words)
+
+
+def standardize_fallback_unit_name(label, entity):
+    org, clean = fallback_org_and_label(label, entity)
+    return f"{org} - {sentence_case_piece(clean)}"
+
+
+def load_inrae_structures():
+    if not INRAE_STRUCTURES.exists():
+        return {}
+
+    with INRAE_STRUCTURES.open("r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+
+    structures = {}
+    for structure in payload.get("structures", []):
+        rnsr = ss(structure.get("rnsr"))
+        if rnsr and rnsr not in structures:
+            structures[rnsr] = structure
+    return structures
+
+
+def load_inrae_lead_units():
+    if not INRAE_LEAD_UNITS.exists():
+        return {}
+
+    with INRAE_LEAD_UNITS.open("r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+
+    lead_units = {}
+    for match in payload.get("matches", []):
+        rnsr = ss(match.get("rnsr"))
+        if rnsr and rnsr not in lead_units:
+            lead_units[rnsr] = match
+    return lead_units
+
+
+def unit_name_score(name, count):
+    norm = normalize_text(name)
+    if not norm:
+        return -10_000
+
+    score = count * 20
+    if norm in GENERIC_INRAE_LABELS:
+        score -= 1_000
+    if norm.startswith("INSTITUT NATIONAL DE") and not any(hint in norm for hint in UNIT_HINTS):
+        score -= 300
+    if "CENTRE DE RECHERCHE" in norm and not any(hint in norm for hint in UNIT_HINTS):
+        score -= 120
+    if any(hint in norm for hint in UNIT_HINTS):
+        score += 220
+    if re.search(r"\bU(?:MR|R|E|S|AR)\b", norm):
+        score += 140
+    if " - " in name or "/" in name:
+        score += 25
+    if len(norm) > 140:
+        score -= 40
+    return score
+
+
+def load_rnsr_name_fallbacks():
+    names_by_rnsr = defaultdict(Counter)
+    for row in read_rows("anr01_dgds_2010_partenaires.csv"):
+        rnsr = ss(row.get("Projet.Partenaire.Code_RNSR"))
+        name = ss(row.get("Projet.Partenaire.Nom_organisme"))
+        if rnsr and name:
+            names_by_rnsr[rnsr][name] += 1
+
+    fallbacks = {}
+    for rnsr, names in names_by_rnsr.items():
+        ranked = sorted(
+            names.items(),
+            key=lambda item: (unit_name_score(item[0], item[1]), item[1], -len(item[0])),
+            reverse=True,
+        )
+        if ranked:
+            fallbacks[rnsr] = {
+                "unitName": ranked[0][0],
+                "unitLabel": ranked[0][0],
+                "unitSource": "anr_partner_label",
+            }
+    return fallbacks
+
+
+def enrich_inrae_units(partners_by_project, inrae_structures, lead_units, rnsr_fallbacks):
+    matched_annuaire = set()
+    matched_lead = set()
+    matched_fallback = set()
+
+    for partners in partners_by_project.values():
+        for partner in partners:
+            rnsr = partner.get("rnsr")
+            if partner.get("entity") not in INRAE_FAMILY or not rnsr:
+                continue
+
+            structure = inrae_structures.get(rnsr)
+            lead_unit = lead_units.get(rnsr, {}) if not structure else {}
+            fallback = rnsr_fallbacks.get(rnsr, {})
+            if structure:
+                matched_annuaire.add(rnsr)
+            elif lead_unit:
+                matched_lead.add(rnsr)
+            elif fallback:
+                matched_fallback.add(rnsr)
+
+            if structure:
+                source = "annuaire_inrae"
+            elif lead_unit:
+                source = "annuaire_lead_person"
+            else:
+                source = fallback.get("unitSource", "")
+            fallback_unit_name = standardize_fallback_unit_name(fallback.get("unitName"), partner.get("entity")) if fallback and not structure and not lead_unit else ""
+            partner.update({
+                "unitName": ss(structure.get("unitName") if structure else lead_unit.get("unitName") or fallback_unit_name),
+                "unitLabel": ss(structure.get("label") if structure else lead_unit.get("unitLabel") or fallback.get("unitLabel")),
+                "unitType": ss(structure.get("unitType") if structure else lead_unit.get("unitType")),
+                "unitCode": ss(structure.get("unitCode") if structure else lead_unit.get("unitCode")),
+                "unitAcronym": ss(structure.get("unitAcronym") if structure else lead_unit.get("unitAcronym")),
+                "unitCentre": ss(structure.get("centre") if structure else lead_unit.get("unitCentre")),
+                "unitDepartment": ss(structure.get("departmentPilot") if structure else lead_unit.get("unitDepartment")),
+                "unitDepartmentCode": ss(structure.get("departmentPilotCode") if structure else lead_unit.get("unitDepartmentCode")),
+                "unitDepartmentCopilots": structure.get("departmentCopilots", []) if structure else lead_unit.get("unitDepartmentCopilots", []),
+                "unitUrl": ss(structure.get("url") if structure else lead_unit.get("unitUrl")),
+                "unitSource": source,
+                "unitMatchedRnsr": ss(structure.get("rnsr") if structure else lead_unit.get("structureRnsr")),
+                "unitPersonName": ss(lead_unit.get("personName")) if lead_unit else "",
+                "unitPersonUrl": ss(lead_unit.get("personUrl")) if lead_unit else "",
+            })
+
+    return matched_annuaire, matched_lead, matched_fallback
+
+
 def only_value(values):
     values = {value for value in values if value}
     if len(values) == 1:
@@ -773,6 +1016,23 @@ def main():
     log("Loading ANR partners...")
     partners_by_project, unknown_countries = load_partners(siren_data)
     log(f"  Projects with partner rows: {len(partners_by_project):,}")
+
+    log("Loading INRAE unit enrichment...")
+    inrae_structures = load_inrae_structures()
+    lead_units = load_inrae_lead_units()
+    rnsr_fallbacks = load_rnsr_name_fallbacks()
+    matched_annuaire, matched_lead, matched_fallback = enrich_inrae_units(
+        partners_by_project,
+        inrae_structures,
+        lead_units,
+        rnsr_fallbacks,
+    )
+    log(f"  Annuaire RNSR entries: {len(inrae_structures):,}")
+    log(f"  Lead unit entries    : {len(lead_units):,}")
+    log(f"  ANR RNSR fallbacks   : {len(rnsr_fallbacks):,}")
+    log(f"  Matched annuaire     : {len(matched_annuaire):,}")
+    log(f"  Matched lead units   : {len(matched_lead):,}")
+    log(f"  Matched fallback     : {len(matched_fallback):,}")
 
     log("Assembling retained projects...")
     projects, skeleton_projects = assemble_projects(projects_base, partners_by_project)

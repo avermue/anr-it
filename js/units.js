@@ -6,14 +6,25 @@ function renderUnits() {
       if (!unitMap[partner.rnsr]) {
         unitMap[partner.rnsr] = {
           rnsr: partner.rnsr,
+          names: new Map(),
+          acronyms: new Set(),
+          types: new Set(),
+          departments: new Set(),
           cities: new Set(),
           leads: new Set(),
           projects: new Set(),
           years: new Set(),
-          aid: 0
+          aid: 0,
+          url: ''
         };
       }
       const unit = unitMap[partner.rnsr];
+      const unitName = partner.unitName || partner.name;
+      if (unitName) unit.names.set(unitName, (unit.names.get(unitName) || 0) + 1);
+      if (partner.unitAcronym) unit.acronyms.add(partner.unitAcronym);
+      if (partner.unitType) unit.types.add(partner.unitType);
+      if (partner.unitDepartment) unit.departments.add(partner.unitDepartment);
+      if (!unit.url && partner.unitUrl) unit.url = partner.unitUrl;
       if (partner.city) unit.cities.add(partner.city);
       const lead = [partner.leadFirstName, partner.leadName].filter(Boolean).join(' ');
       if (lead) unit.leads.add(lead);
@@ -28,6 +39,7 @@ function renderUnits() {
   rows.sort((a, b) => {
     if (sort === 'budget-desc') return b.aid - a.aid || b.projects.size - a.projects.size;
     if (sort === 'rnsr-asc') return a.rnsr.localeCompare(b.rnsr, 'en');
+    if (sort === 'department-asc') return firstValue(a.departments).localeCompare(firstValue(b.departments), 'en');
     if (sort === 'city-asc') return firstValue(a.cities).localeCompare(firstValue(b.cities), 'en');
     return b.projects.size - a.projects.size || b.aid - a.aid;
   });
@@ -38,18 +50,26 @@ function renderUnits() {
 
   document.getElementById('unit-tbody').innerHTML = pageRows.length ? pageRows.map((unit, index) => {
     const years = [...unit.years].filter(Boolean).sort();
+    const name = dominantName(unit.names);
+    const nameLink = unit.url
+      ? `<a href="${esc(unit.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(name)}</a>`
+      : esc(name);
+    const meta = [[...unit.types].sort()[0], [...unit.acronyms].sort()[0]].filter(Boolean).join(' ');
+    const departments = [...unit.departments].sort();
     const leads = [...unit.leads].sort().slice(0, 3);
     const cities = [...unit.cities].sort();
     const isActive = UNIT_FILTER === unit.rnsr;
     return `<tr class="is-clickable ${isActive ? 'is-active' : ''}" onclick="setUnitFilter(window._unitRows[${index}].rnsr)">
       <td><div class="name-main">${esc(unit.rnsr)}</div></td>
+      <td><div class="name-main">${nameLink}</div>${meta ? `<div class="name-sub">${esc(meta)}</div>` : ''}</td>
+      <td>${departments.length ? departments.slice(0, 2).map(esc).join('<br>') : '-'}</td>
       <td>${esc(cities.slice(0, 2).join(', ') || '-')}</td>
       <td>${leads.length ? leads.map(esc).join('<br>') : '-'}</td>
       <td class="mono">${unit.projects.size}</td>
       <td class="mono">${years.length ? `${years[0]}-${years[years.length - 1]}` : '-'}</td>
       <td class="mono">${fmtM(unit.aid)}</td>
     </tr>`;
-  }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--ink-light);padding:14px">No RNSR units match.</td></tr>';
+  }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--ink-light);padding:14px">No RNSR units match.</td></tr>';
 
   document.getElementById('units-subtitle').textContent = `${total} RNSR units in ${FILTERED.length} filtered projects`;
   renderUnitFilterIndicator();
@@ -85,4 +105,3 @@ function setUnitPage(page) {
   UNIT_PAGE = page;
   renderUnits();
 }
-
